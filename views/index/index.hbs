@@ -26,7 +26,7 @@
           <td style="text-align:center;">{{this.tipoTrx}}</td>
           <td style="text-align:center;">{{this.descripcion}}</td>
           <td style="text-align:center;" id="resultado{{this.idTest}}"><i style="color:red;" class="small material-icons">clear</i></td>
-          <td style="text-align:center;">{{#if this.ultimaEjecucion}} <i style="color:green;" class="small material-icons">check</i> {{else}} <i style="color:red;" class="small material-icons">clear</i> {{/if }}</td>
+          <td style="text-align:center;" id="respuesta{{this.idTest}}"></td>
           <td style="text-align:center;"><a class="waves-effect waves-light btn execute" id="{{this.idTest}}" onclick="ejecutarTrx('{{this.idTest}}')">Ejecutar</a></td>
         </tr>
         {{/each}}
@@ -58,6 +58,12 @@ function ejecutarTodo() {
             }else{
               console.log(result);
               document.getElementById('resultado'+id).innerHTML = '<i style="color:green;" class="small material-icons">check</i>';
+              if (result.resultado) {
+                document.getElementById('respuesta'+id).innerHTML = '<i style="color:green;" class="small material-icons">check</i>';
+              }else{
+                document.getElementById('respuesta'+id).innerHTML = '<i style="color:red;" class="small material-icons">clear</i>';
+
+              };
             }
           };
         },

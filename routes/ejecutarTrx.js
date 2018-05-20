@@ -7,102 +7,173 @@ var Prueba = require('../models/transacciones');
 var bodyParser = require('body-parser');
 var net = require('net');
 
-function pading(n, width, z) {
+// funcion para rellenar con 0 valores a la derecha
+function padingR(n, width, z) {
         z = z || '0';
         n = n + '';
         return n.length >= width ? n : n + new Array(width - n.length + 1).join(z);
 };
+// funcion para rellenar con 0 valores a la izquierda
+function padingL(n, width, z) {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+};
+
 
 /* GET home page. */
 router.post('/', function(req, res, next) {
   var idTest = req.body.ID;
-  Cuenta.find({}, function(err, cuenta){
-    Prueba.find({idTest:idTest},function(err, prueba) {
+  Canal.find({}, function(err, canal) {
+    Cuenta.find({}, function(err, cuenta){
+      Prueba.find({idTest:idTest},function(err, prueba) {
 
-      var iso = prueba[0].isoTest;
-      var isoParseado = new Parseador(iso);
+        var iso = prueba[0].isoTest;
+        var isoParseado = new Parseador(iso);
 
-      const campo3 = isoParseado.Campos.find( campo => campo.Campo === 'F3' );
-      const campo102 = isoParseado.Campos.find( campo => campo.Campo === 'F102' );
-      const campo103 = isoParseado.Campos.find( campo => campo.Campo === 'F103' );
-      const campo35 = isoParseado.Campos.find( campo => campo.Campo === 'F35' );
+        var iso = setearDatosISO(isoParseado, prueba, cuenta, iso);
+        //console.log(iso);
 
-      //revisamos segun tipo de transaccion que cuentas hay que reemplazar
-      var tipoCuentaOrigen = campo3.Valor.substring(2, 4);
-      var tipoCuentaDestino = campo3.Valor.substring(4, 6);
+        var puerto = canal[0].puerto;
+        var ip = canal[0].ip;
+        var client = new net.Socket();
+        // conecta al Socket y envia el mensaje, dependiendo si es TCPP o TCP envia el tamaño del buffer al comienzo del mensaje
+        client.connect(puerto, ip, function() {
+          var length = iso.length;
+          client.write(length + iso);
+        });
+        // En caso de recibir informacion por el socket
+        client.on('data', function(data) {
 
-      if (tipoCuentaOrigen == "10" || tipoCuentaDestino == "10") {
-        cuenta[0].CajaAhorroPesos = pading(cuenta[0].CajaAhorroPesos, 28, ' ');
-        if (tipoCuentaOrigen == "10") {
-          iso = iso.replace(campo102.Valor, cuenta[0].CajaAhorroPesos);
-        };
-        if (tipoCuentaDestino == "10") {
-          iso = iso.replace(campo103.Valor, cuenta[0].CajaAhorroPesos);
-        };
-      };
-      if (tipoCuentaOrigen == "20" || tipoCuentaDestino == "20") {
-        cuenta[0].CuentaCorrientePesos = pading(cuenta[0].CuentaCorrientePesos, 28, ' ');
-        if (tipoCuentaOrigen == "20") {
-          iso = iso.replace(campo102.Valor, cuenta[0].CuentaCorrientePesos);
-        };
-        if (tipoCuentaDestino == "20") {
-          iso = iso.replace(campo103.Valor, cuenta[0].CuentaCorrientePesos);
-        };
-      };
-      if (tipoCuentaOrigen == "07" || tipoCuentaDestino == "07") {
-        cuenta[0].CuentaCorrienteDolares = pading(cuenta[0].CuentaCorrienteDolares, 28, ' ');
-        if (tipoCuentaOrigen == "07") {
-          iso = iso.replace(campo102.Valor, cuenta[0].CuentaCorrienteDolares);
-        };
-        if (tipoCuentaDestino == "07") {
-          iso = iso.replace(campo103.Valor, cuenta[0].CuentaCorrienteDolares);
-        };
-      };
-      if (tipoCuentaOrigen == "15" || tipoCuentaDestino == "15") {
-        cuenta[0].CajaAhorroDolares = pading(cuenta[0].CajaAhorroDolares, 28, ' ');
-        if (tipoCuentaOrigen == "15") {
-          iso = iso.replace(campo102.Valor, cuenta[0].CajaAhorroDolares);
-        };
-        if (tipoCuentaDestino == "15") {
-          iso = iso.replace(campo103.Valor, cuenta[0].CajaAhorroDolares);
-        };
-      };
-      //pasarlo a una funcion
+          var respuestaOK = false;
+          var datos = data.toString('ascii');
+          if (datos.substr(0,3) == "ISO") {
 
-      var signoTarjeta = campo35.Valor.indexOf('=');
-      if (signoTarjeta > 0) {
-        var tarjetaIso = campo35.Valor.substring(0, signoTarjeta);
-        var iso = iso.replace(tarjetaIso, cuenta[0].TarjetaAsociada);
-      };
+              var datosParseado = new Parseador(datos);
 
+              var campo39 = datosParseado.Campos.find( campo => campo.Campo === 'F39' );
+              var campo44 = datosParseado.Campos.find( campo => campo.Campo === 'F44' );
 
-      ////cuenta[0].TarjetaAsociada = pading(cuenta[0].TarjetaAsociada, 28, ' ');
-      ////iso = iso.replace(campo35.Valor, cuenta[0].TarjetaAsociada);
-      ////console.log(iso);
-      //console.log(campo3.Valor);
-      //console.log(campo102.Valor);
+              if (campo39.Valor == "00") {
+                respuestaOK = true;
+              };
+              prueba[0].ultimaEjecucion = respuestaOK;
+              prueba[0].isoUltimaEjecucion = datos;
+              prueba[0].isoTest = iso;
 
-      res.send('OK');
+              prueba[0].save(err,function() {
+                if (err) {
+                  res.send({resultado: false, error: '<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>Algo Salió Mal: Con la base de datos. Error: ' + err + '</span><i class="material-icons right" onclick="Cerrar()">close</i></div>' })
+                }else{
+                  res.send({resultado: respuestaOK, campo39:campo39.Valor});
+                  client.destroy();
+                };
+              });
+          };
+        });
+
+        // En caso de recibir error
+        client.on('error', function(data) {
+          //console.log(data);
+          // si se recibe un codigo de error especifico se devuelve a la vista el codigo con un mensaje de error de falla de conexion
+          if (data.code) {
+            res.send({ error: '<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>Algo Salió Mal: no se pudo conectar a la ip y puerto establecido. Error: ' + data.code + '</span><i class="material-icons right" onclick="Cerrar()">close</i></div>' })
+          }
+        });
+        // En caso de cierre del socket
+        client.on('close', function() {
+          //console.log('Conexion Cerrada!');
+        });
+      });
     });
   });
 });
 
-/* POST para el metodo Parsear, toma el mensaje ISO del input, y con la clase Parseador devuelve un JSON con los datos parseados */
-router.post('/otros', function(req, res, next) {
-  // recibe valores del Form
-  var iso = req.body.ISO;
-  var ip = req.body.IP;
-  var puerto = req.body.Puerto;
+function setearDatosISO(isoParseado, prueba, cuenta, iso ){
 
-  // si el input esta vacio devuelve error
-  if (iso == "") {
-    res.render('index', { error: '<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>No ingreso Ninguna ISO</span><i class="material-icons right" onclick="Cerrar()">close</i></div>' })
-  }else{
-    // convierte la ISO a json y lo devuelve a la vista
-    var isoParseado = new Parseador(iso);
-    res.render('index', { ISO: isoParseado, body: req.body });
-  }
-});
+  const campo3 = isoParseado.Campos.find( campo => campo.Campo === 'F3' );
+  const campo7 = isoParseado.Campos.find( campo => campo.Campo === 'F7' );
+  const campo12 = isoParseado.Campos.find( campo => campo.Campo === 'F12' );
+  const campo13 = isoParseado.Campos.find( campo => campo.Campo === 'F13' );
+  const campo17 = isoParseado.Campos.find( campo => campo.Campo === 'F17' );
+  const campo35 = isoParseado.Campos.find( campo => campo.Campo === 'F35' );
+  const campo102 = isoParseado.Campos.find( campo => campo.Campo === 'F102' );
+  const campo103 = isoParseado.Campos.find( campo => campo.Campo === 'F103' );
+
+  //según el tipo de cuenta seteamos en el campo correspondiente (102 origen, 103 destino)
+  var tipoCuentaOrigen = campo3.Valor.substring(2, 4);
+  var tipoCuentaDestino = campo3.Valor.substring(4, 6);
+  if (tipoCuentaOrigen == "10" || tipoCuentaDestino == "10") {
+    cuenta[0].CajaAhorroPesos = padingR(cuenta[0].CajaAhorroPesos, 28, ' ');
+    if (tipoCuentaOrigen == "10") {
+      iso = iso.replace(campo102.Valor, cuenta[0].CajaAhorroPesos);
+    };
+    if (tipoCuentaDestino == "10") {
+      iso = iso.replace(campo103.Valor, cuenta[0].CajaAhorroPesos);
+    };
+  };
+  if (tipoCuentaOrigen == "20" || tipoCuentaDestino == "20") {
+    cuenta[0].CuentaCorrientePesos = padingR(cuenta[0].CuentaCorrientePesos, 28, ' ');
+    if (tipoCuentaOrigen == "20") {
+      iso = iso.replace(campo102.Valor, cuenta[0].CuentaCorrientePesos);
+    };
+    if (tipoCuentaDestino == "20") {
+      iso = iso.replace(campo103.Valor, cuenta[0].CuentaCorrientePesos);
+    };
+  };
+  if (tipoCuentaOrigen == "07" || tipoCuentaDestino == "07") {
+    cuenta[0].CuentaCorrienteDolares = padingR(cuenta[0].CuentaCorrienteDolares, 28, ' ');
+    if (tipoCuentaOrigen == "07") {
+      iso = iso.replace(campo102.Valor, cuenta[0].CuentaCorrienteDolares);
+    };
+    if (tipoCuentaDestino == "07") {
+      iso = iso.replace(campo103.Valor, cuenta[0].CuentaCorrienteDolares);
+    };
+  };
+  if (tipoCuentaOrigen == "15" || tipoCuentaDestino == "15") {
+    cuenta[0].CajaAhorroDolares = padingR(cuenta[0].CajaAhorroDolares, 28, ' ');
+    if (tipoCuentaOrigen == "15") {
+      iso = iso.replace(campo102.Valor, cuenta[0].CajaAhorroDolares);
+    };
+    if (tipoCuentaDestino == "15") {
+      iso = iso.replace(campo103.Valor, cuenta[0].CajaAhorroDolares);
+    };
+  };
+  //Seteamos el numero de tarjeta asociada
+  var signoTarjeta = campo35.Valor.indexOf('=');
+  if (signoTarjeta > 0) {
+    var tarjetaIso = campo35.Valor.substring(0, signoTarjeta);
+    iso = iso.replace(tarjetaIso, cuenta[0].TarjetaAsociada);
+  };
+
+  // seteamos todos los campos de fechas con la del dia.
+  var d = new Date();
+  var DD =  d.getDate();
+      DD = padingL(DD, 2, 0);
+  var MM =  d.getMonth() + 1;
+      MM = padingL(MM, 2, 0);
+  var YY =  d.getFullYear();
+      YY = padingL(YY, 2, 0);
+  var hora = d.getHours();
+      hora = padingL(hora, 2, 0);
+  var min = d.getMinutes();
+      min = padingL(min, 2, 0);
+  var seg = d.getSeconds();
+      seg = padingL(seg, 2, 0);
+
+  var valorCampo7 = MM + DD + hora + min + seg;
+  var valorCampo12 = hora + min + seg;
+  var valorCampo13 = MM + DD;
+  var valorCampo17 = MM + DD;
+
+  var campos1317 = campo13.Valor + "0000" + campo17.Valor;
+  var camposNuevos = valorCampo13 + "0000" + valorCampo17;
+  iso = iso.replace(campos1317, camposNuevos);
+  iso = iso.replace(campo7.Valor, valorCampo7);
+  iso = iso.replace(campo12.Valor, valorCampo12);
+
+  return iso;
+};
 
 /* Llamado por AJAX al metodo Enviar, emula una transaccion hacia un IP y puerto especifico */
 router.post('/Enviar', function(req, res, next) {
@@ -128,18 +199,18 @@ router.post('/Enviar', function(req, res, next) {
       if (tcpp) {
         // en caso de hacer una conexion TCPP se envia el tamaño del mensaje como cabecera
         var length = iso.length;
-        console.log('Enviado: ' + iso);
+        //console.log('Enviado: ' + iso);
         client.write(length + iso);
       }else{
         // en caso de hacer una conexion TCP
-        console.log('Enviado: ' + iso);
+        //console.log('Enviado: ' + iso);
         client.write(iso);
       }
     });
 
     // En caso de recibir informacion por el socket
     client.on('data', function(data) {
-      console.log('Received: ' + data);
+      //console.log('Received: ' + data);
       var datos = data.toString('ascii');
       //client.destroy(); // destruye el server despues de la respuesta del Server
 
@@ -151,7 +222,7 @@ router.post('/Enviar', function(req, res, next) {
 
     // En caso de recibir error
     client.on('error', function(data) {
-      console.log(data);
+      //console.log(data);
       // si se recibe un codigo de error especifico se devuelve a la vista el codigo con un mensaje de error de falla de conexion
       if (data.code) {
         res.send({ error: '<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>Algo Salió Mal: no se pudo conectar a la ip y puerto establecido. Error: ' + data.code + '</span><i class="material-icons right" onclick="Cerrar()">close</i></div>' })
@@ -160,7 +231,7 @@ router.post('/Enviar', function(req, res, next) {
 
     // En caso de cierre del socket
     client.on('close', function() {
-      console.log('Conexion Cerrada!');
+      //console.log('Conexion Cerrada!');
     });
   }
 });
