@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{title}}</title>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="/stylesheets/materialize.css"  media="screen,projection"/>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    {{> header}}
+    {{{body}}}
+    {{> footer}}
+    <!--Import jQuery before materialize.js-->
+    <script src="/javascripts/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+
+    <script type="text/javascript">
+      var $loading = $('#loading').hide();
+      var $titulo = $('#titulo').show();
+      //Script para efecto de aparicion del logo Cargando, esta vinculada a cuando cualquier cosulta Ajax se ejecuta
+      $(document).ajaxStart(function () {
+        //Cuando inicia un Ajax desaparece el titulo y aparece el logo cargando
+        $titulo.fadeOut(300,"swing", function() {
+           $loading.fadeIn(300);
+         });
+      }).ajaxStop(function () {
+        //Cuando finaliza un Ajax desaparece el logo cargando y aparece el titulo
+        $loading.fadeOut(300,"swing", function() {
+           $titulo.fadeIn(300);
+         });
+      });
+
+    </script>
+    <script type="text/javascript">
+      // Or with jQuery
+      $(document).ready(function(){
+      $('select').formSelect();
+      });
+
+      $(".dropdown-trigger").dropdown();
+
+      function Cerrar() {
+        document.getElementById('errores').innerHTML = "";
+      };
+      $(document).ready(function(){
+         $('.modal').modal();
+       });
+    </script>
+  </body>
+</html>

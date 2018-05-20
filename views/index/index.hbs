@@ -1,0 +1,71 @@
+
+<div class="container" style="text-align:center;">
+  <h3>Testing para Link</h3>
+  <h5>Pruebas a Ejecutar</h5>
+    <div id="errores">{{{error}}}</div>
+
+    {{#if pruebas}}
+    <hr>
+      <a class="waves-effect waves-light btn" onclick="ejecutarTodo()">Ejecutar todas las pruebas</a>
+    <hr>
+    <table>
+      <thead>
+        <tr>
+            <th style="text-align:center;">Id Test</th>
+            <th style="text-align:center;">Tipo Trx</th>
+            <th style="text-align:center;">Descripcion</th>
+            <th style="text-align:center;">Ejecutada</th>
+            <th style="text-align:center;">Resultado</th>
+            <th style="text-align:center;">Accion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each pruebas}}
+        <tr>
+          <td style="text-align:center;">{{this.idTest}}</td>
+          <td style="text-align:center;">{{this.tipoTrx}}</td>
+          <td style="text-align:center;">{{this.descripcion}}</td>
+          <td style="text-align:center;" id="resultado{{this.idTest}}"><i style="color:red;" class="small material-icons">clear</i></td>
+          <td style="text-align:center;">{{#if this.ultimaEjecucion}} <i style="color:green;" class="small material-icons">check</i> {{else}} <i style="color:red;" class="small material-icons">clear</i> {{/if }}</td>
+          <td style="text-align:center;"><a class="waves-effect waves-light btn execute" id="{{this.idTest}}" onclick="ejecutarTrx('{{this.idTest}}')">Ejecutar</a></td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{else}}
+    <hr>
+      No hay pruebas activadas, activelas desde <a href="/prueba">aqui</a>
+    <hr>
+    {{/if}}
+</div>
+<script type="text/javascript">
+function ejecutarTodo() {
+  $('.execute').each(function() {this.click()})
+};
+  function ejecutarTrx(id) {
+    var d = new Date();
+    var f = d.getMilliseconds();
+    var direccion = "/ejecutarTrx"
+    $.ajax(
+      {
+        url: direccion,
+        type: 'POST',
+        data: {ID: id},
+        success: function(result){
+          if(result) {
+            if(result.error) {
+              document.getElementById('errores').innerHTML = document.getElementById('errores').innerHTML + result.error;
+            }else{
+              console.log(result);
+              document.getElementById('resultado'+id).innerHTML = '<i style="color:green;" class="small material-icons">check</i>';
+            }
+          };
+        },
+        error: function(excepcion){
+            alert('error');
+            console.log(excepcion);
+        }
+    });
+
+  };
+</script>

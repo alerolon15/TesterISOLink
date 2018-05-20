@@ -1,0 +1,48 @@
+<div class="container">
+  <p class="text-center">Configuracion de cuentas</p>
+  <hr>
+  <div class="row">
+    <form class="col s12" action="/cuenta" autocomplete="off" method="POST">
+      {{#each cuenta}}
+      <div class="row">
+        <div class="input-field col s6">
+          <i class="material-icons prefix">credit_card</i>
+          <input name="tarjeta" type="text" class="validate" value='{{this.TarjetaAsociada}}'>
+          <label for="tarjeta">Tarjeta Asociada</label>
+        </div>
+        <div class="input-field col s6">
+          <i class="material-icons prefix">account_balance</i>
+          <input name="nroBanco" type="text" class="validate" value='{{this.nroBanco}}'>
+          <label for="nroBanco">Codigo de Banco</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6">
+          <i class="material-icons prefix">attach_money</i>
+          <input name="capesos" type="text" class="validate" value='{{this.CajaAhorroPesos}}'>
+          <label for="capesos">CA en pesos</label>
+        </div>
+        <div class="input-field col s6">
+          <i class="material-icons prefix">attach_money</i>
+          <input name="cadolares" type="tel" class="validate" value='{{this.CajaAhorroDolares}}'>
+          <label for="cadolares">CA en dolares</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6">
+          <i class="material-icons prefix">attach_money</i>
+          <input name="ccpesos" type="text" class="validate" value='{{this.CuentaCorrientePesos}}'>
+          <label for="ccpesos">CC en pesos</label>
+        </div>
+        <div class="input-field col s6">
+          <i class="material-icons prefix">attach_money</i>
+          <input name="ccdolares" type="tel" class="validate" value='{{this.CuentaCorrienteDolares}}'>
+          <label for="ccdolares">CC en dolares</label>
+        </div>
+      </div>
+      {{/each}}
+      <button type="submit" class="waves-effect waves-light btn right">Guardar</button>
+    </form>
+  </div>
+
+</div>

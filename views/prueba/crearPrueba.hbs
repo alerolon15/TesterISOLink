@@ -1,0 +1,41 @@
+<div class="container">
+  <p class="text-center">Crear Pruebas unitarias <i class="material-icons prefix">bug_report</i></p>
+  <div id="errores">{{{error}}}</div>
+  <hr>
+  <div class="row">
+    <form class="col s12" action="/prueba/crearPrueba" autocomplete="off" method="POST">
+      <div class="row">
+        <div class="input-field col s6">
+          <i class="material-icons prefix">fingerprint</i>
+          <input name="idTest" type="text" class="validate">
+          <label for="idTest">ID</label>
+        </div>
+        <div class="input-field col s6">
+          <i class="material-icons prefix">local_atm</i>
+          <select name="tipoTrx">
+            <option value="" disabled selected>Elige una opcion</option>
+            <option value="Consulta de Saldo">Consulta de Saldo</option>
+            <option value="Extraccion">Extraccion</option>
+            <option value="Compra">Compra</option>
+          </select>
+          <label for="tipoTrx">Tipo de Transacción</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <i class="material-icons prefix">code</i>
+          <input name="isoTest" type="text" class="validate">
+          <label for="isoTest">Mensaje ISO</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <i class="material-icons prefix">description</i>
+          <input name="descripcion" type="text" class="validate">
+          <label for="descripcion">Descipción</label>
+        </div>
+      </div>
+      <button type="submit" class="waves-effect waves-light btn right">Guardar</button>
+    </form>
+  </div>
+</div>

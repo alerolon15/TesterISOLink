@@ -1,0 +1,24 @@
+<div class="container">
+  <p class="text-center">Configuracion de canal {{#each canal}}{{this.tipoCanal}}{{/each}}</p>
+  <hr>
+  <div class="row">
+    <form class="col s12" action="/canal" autocomplete="off" method="POST">
+      {{#each canal}}
+      <div class="row">
+
+        <div class="input-field col s6">
+          <i class="material-icons prefix">timeline</i>
+          <input name="ip" type="text" class="validate" value='{{this.ip}}'>
+          <label for="ip">IP</label>
+        </div>
+        <div class="input-field col s6">
+          <i class="material-icons prefix">timeline</i>
+          <input name="puerto" type="tel" class="validate" value='{{this.puerto}}'>
+          <label for="puerto">Puerto</label>
+        </div>
+      </div>
+      {{/each}}
+      <button type="submit" class="waves-effect waves-light btn right">Guardar</button>
+    </form>
+  </div>
+</div>

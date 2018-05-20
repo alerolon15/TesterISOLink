@@ -1,0 +1,126 @@
+<div class="container">
+  <div id="errores">{{{error}}}</div>
+
+  {{#if pruebas}}
+  <table>
+    <thead>
+      <tr>
+          <th style="text-align:center;">Id Test</th>
+          <th style="text-align:center;">Tipo Trx</th>
+          <th style="text-align:center;">Descripcion</th>
+          <th style="text-align:center;">Activar</th>
+          <th style="text-align:center;">Ver</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each pruebas}}
+      <tr>
+        <td style="text-align:center;">{{this.idTest}}</td>
+        <td style="text-align:center;">{{this.tipoTrx}}</td>
+        <td style="text-align:center;">{{this.descripcion}}</td>
+        <td style="text-align:center;">
+          <div class="switch">
+            <label>
+              {{#if this.activar}}
+                <input type="checkbox" name="{{this.idTest}}" onclick="activar('{{this.idTest}}')" checked>
+              {{else}}
+                <input type="checkbox" name="{{this.idTest}}" onclick="activar('{{this.idTest}}')">
+              {{/if}}
+              <span class="lever"></span>
+              Activar
+            </label>
+          </div>
+        </td>
+        <td style="text-align:center;"><button class="waves-effect waves-light btn" onclick="verInfo('{{this.idTest}}')"><i class="material-icons">search</i></button></td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{else}}
+    No hay pruebas creadas
+  {{/if}}
+</div>
+
+<a class="waves-effect waves-light btn modal-trigger hide buttonModal" href="#modal1">Modal</a>
+
+<div id="modal1" class="modal">
+  <div class="modal-content">
+    <h4>Datos de Prueba</h4>
+    <hr>
+    <table class="table table-striped">
+        	<thead>
+        	  <tr style="text-align: left;">
+          		<th></th>
+          		<th></th>
+        	  </tr>
+        	</thead>
+        	<tbody>
+            <tr class="idTest" style="text-align:left;"></tr>
+        	  <tr class="tipoTrx" style="text-align:left;"></tr>
+            <tr class="isoTest" style="text-align:left;"></tr>
+            <tr class="activar" style="text-align:left;"></tr>
+            <tr class="descripcion" style="text-align:left;"></tr>
+            <tr class="ultimaEjecucion" style="text-align:left;"></tr>
+            <tr class="isoUltimaEjecucion" style="text-align:left;"></tr>
+        	</tbody>
+        </table>
+  </div>
+  <div class="modal-footer">
+    <a class="modal-close waves-effect waves-green btn-flat">Cerrar</a>
+  </div>
+</div>
+<script type="text/javascript">
+function verInfo(id) {
+  var direccion = "/prueba/verInfo"
+  $.ajax(
+    {
+      url: direccion,
+      type: 'POST',
+      data: { ID: id},
+      success: function(result){
+        if(result) {
+          if(result.error) {
+            document.getElementById('errores').innerHTML = document.getElementById('errores').innerHTML + result.error;
+          }else{
+            console.log(result);
+            $('.buttonModal')[0].click();
+            document.getElementsByClassName('idTest')[0].innerHTML = '<td style="text-align:left;"><strong>ID del Test:</strong></td><td> '  + result.idTest + '</td>';
+            document.getElementsByClassName('tipoTrx')[0].innerHTML = '<td style="text-align:left;"><strong>Tipo de Trx:</strong></td><td> '  + result.tipoTrx  + '</td>';
+            document.getElementsByClassName('isoTest')[0].innerHTML = '<td style="text-align:left;"><strong>ISO:</strong></td><td> '  + result.isoTest + '</td>';
+            if(result.activar){var activadoHtml = '<i style="color:green;" class="small material-icons">check</i>'}else{var activadoHtml = '<i style="color:red;" class="small material-icons">clear</i>'};
+            document.getElementsByClassName('activar')[0].innerHTML = '<td style="text-align:left;"><strong>Activado:</strong></td><td> '  + activadoHtml + '</td>';
+            document.getElementsByClassName('descripcion')[0].innerHTML = '<td style="text-align:left;"><strong>Descripcion:</strong> </td><td>'  + result.descripcion + '</td>';
+            if(result.ultimaEjecucion){var ultimaHtml = '<i style="color:green;" class="small material-icons">check</i>'}else{var ultimaHtml = '<i style="color:red;" class="small material-icons">clear</i>'};
+            document.getElementsByClassName('ultimaEjecucion')[0].innerHTML = '<td style="text-align:left;"><strong>Resultado Ultima Ejecucion:</strong></td><td> '  + ultimaHtml + '</td>';
+            document.getElementsByClassName('isoUltimaEjecucion')[0].innerHTML = '<td style="text-align:left;"><strong>ISO respuesta:</strong></td><td> '  + result.isoUltimaEjecucion + '</td>';
+          };
+        };
+      },
+      error: function(excepcion){
+        alert('error');
+        console.log(excepcion);
+      }
+    });
+  };
+  function activar(id) {
+    var activar = document.getElementsByName(id)[0].checked;
+    var direccion = "/prueba/activar"
+    $.ajax(
+      {
+        url: direccion,
+        type: 'POST',
+        data: { Activar: activar, ID: id},
+        success: function(result){
+          if(result) {
+            if(result.error) {
+              document.getElementById('errores').innerHTML = document.getElementById('errores').innerHTML + result.error;
+            }
+          };
+        },
+        error: function(excepcion){
+            alert('error');
+            console.log(excepcion);
+        }
+    });
+  }
+</script>
