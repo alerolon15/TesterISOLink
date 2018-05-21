@@ -37,6 +37,7 @@ router.post('/', function(req, res, next) {
         var puerto = canal[0].puerto;
         var ip = canal[0].ip;
         var client = new net.Socket();
+        var date1 = new Date();
         // conecta al Socket y envia el mensaje, dependiendo si es TCPP o TCP envia el tamaño del buffer al comienzo del mensaje
         client.connect(puerto, ip, function() {
           var length = iso.length;
@@ -51,21 +52,26 @@ router.post('/', function(req, res, next) {
 
               var datosParseado = new Parseador(datos);
 
+              var date2 = new Date();
+              var dif = Math.abs((date2.getTime() - date1.getTime()))
+
               var campo39 = datosParseado.Campos.find( campo => campo.Campo === 'F39' );
               var campo44 = datosParseado.Campos.find( campo => campo.Campo === 'F44' );
 
-              if (campo39.Valor == "00") {
+              if (campo39.Valor == prueba[0].resultadoEsperado) {
                 respuestaOK = true;
               };
               prueba[0].ultimaEjecucion = respuestaOK;
               prueba[0].isoUltimaEjecucion = datos;
               prueba[0].isoTest = iso;
+              prueba[0].resultadoRecibido = campo39.Valor;
 
               prueba[0].save(err,function() {
                 if (err) {
                   res.send({resultado: false, error: '<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>Algo Salió Mal: Con la base de datos. Error: ' + err + '</span><i class="material-icons right" onclick="Cerrar()">close</i></div>' })
                 }else{
-                  res.send({resultado: respuestaOK, campo39:campo39.Valor});
+
+                  res.send({resultado: respuestaOK, tiempo:dif});
                   client.destroy();
                 };
               });
@@ -97,8 +103,16 @@ function setearDatosISO(isoParseado, prueba, cuenta, iso ){
   const campo13 = isoParseado.Campos.find( campo => campo.Campo === 'F13' );
   const campo17 = isoParseado.Campos.find( campo => campo.Campo === 'F17' );
   const campo35 = isoParseado.Campos.find( campo => campo.Campo === 'F35' );
+  const campo37 = isoParseado.Campos.find( campo => campo.Campo === 'F37' );
   const campo102 = isoParseado.Campos.find( campo => campo.Campo === 'F102' );
   const campo103 = isoParseado.Campos.find( campo => campo.Campo === 'F103' );
+
+  // sumo uno al numero de sequencia;
+  var INTcampo37 = parseInt(campo37.Valor);
+      INTcampo37 = INTcampo37 + 1;
+      INTcampo37 = padingL(INTcampo37, 6, '0');
+      INTcampo37 = padingR(INTcampo37, 12, ' ');
+  iso = iso.replace(campo37.Valor, INTcampo37);
 
   //según el tipo de cuenta seteamos en el campo correspondiente (102 origen, 103 destino)
   var tipoCuentaOrigen = campo3.Valor.substring(2, 4);

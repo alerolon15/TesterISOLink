@@ -8,7 +8,9 @@ var transaccionSchema = new Schema({
   activar: {type: Boolean},
   descripcion: {type: String},
   ultimaEjecucion: {type:Boolean},
-  isoUltimaEjecucion: {type:String}
+  isoUltimaEjecucion: {type:String},
+  resultadoRecibido: {type:String},
+  resultadoEsperado: {type:String}
 });
 
 module.exports = mongoose.model('Transaccion', transaccionSchema);

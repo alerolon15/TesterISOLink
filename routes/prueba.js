@@ -63,6 +63,8 @@ router.post('/crearPrueba', function(req, res, next) {
   var descripcion = req.body.descripcion;
   var ultimaEjecucion = false;
   var isoUltimaEjecucion  = null;
+  var resultadoEsperado  = req.body.resultadoEsperado;
+  var resultadoRecibido  = req.body.resultadoRecibido;
 
   var data = {
     idTest,
@@ -71,7 +73,9 @@ router.post('/crearPrueba', function(req, res, next) {
     activar,
     descripcion,
     ultimaEjecucion,
-    isoUltimaEjecucion
+    isoUltimaEjecucion,
+    resultadoEsperado,
+    resultadoRecibido
   };
   var prueba = new Prueba(data);
 
@@ -84,4 +88,47 @@ router.post('/crearPrueba', function(req, res, next) {
     }
   });
 });
+
+router.get('/editar/:id', function(req, res, next) {
+  var pruebaEditar = req.params.id;
+  Prueba.find({idTest:pruebaEditar}, function(err, prueba) {
+    var pruebaID = prueba[0];
+    res.render('prueba/editarPrueba',{ prueba: pruebaID });
+  });
+});
+
+router.post('/editar/:id', function(req, res, next) {
+  var pruebaEditar = req.params.id;
+  Prueba.find({idTest:pruebaEditar}, function(err, prueba) {
+    prueba[0].tipoTrx = req.body.tipoTrx;
+    prueba[0].isoTest = req.body.isoTest;
+    prueba[0].descripcion = req.body.descripcion;
+    prueba[0].resultadoEsperado  = req.body.resultadoEsperado;
+
+    prueba[0].save(function(err) {
+      if(err){
+          console.log(err);
+          res.render('prueba/editarPrueba', {error:'<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>No se pudo editar la prueba</span><i class="material-icons right" onclick="Cerrar()">close</i></div>',prueba: prueba});
+      }else{
+        res.redirect('/prueba');
+      }
+    });
+  });
+});
+
+router.get('/borrar/:id', function(req, res, next) {
+    var pruebaBorrar = req.params.id;
+
+    Prueba.find({idTest:pruebaBorrar}, function(err, prueba){
+      var pruebaBorrado = prueba[0]._id;
+      Prueba.findByIdAndRemove(pruebaBorrado,function(err) {
+        if(err) {
+          res.render('prueba/index', {error: '<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>Algo fallo en la base de datos</span><i class="material-icons right" onclick="Cerrar()">close</i></div>'});
+        }else{
+          res.redirect('/prueba');
+        };
+      });
+    });
+});
+
 module.exports = router;
