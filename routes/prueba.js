@@ -46,10 +46,13 @@ router.post('/verInfo', function(req, res, next) {
       res.status(400);
       res.send('Error al buscar informacion');
     }else{
+      var isoOutput = {Campos:[{}]};
       var isoInput = new Parseador(prueba.isoTest);
-      var isoOutput = new Parseador(prueba.isoUltimaEjecucion);
+      if (prueba.isoUltimaEjecucion != null) {
+        var isoOutput = new Parseador(prueba.isoUltimaEjecucion);
+      };
 
-      
+
       var result = {
         _id: prueba._id,
         idTest: prueba.idTest,

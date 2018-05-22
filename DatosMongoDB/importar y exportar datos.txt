@@ -1,0 +1,8 @@
+mongoexport --db Tester --collection transaccions --out transaccions.json
+mongoimport --db Tester --collection transaccions --file transaccions.json
+
+mongoexport --db Tester --collection canals --out canals.json
+mongoimport --db Tester --collection canals --file canals.json
+
+mongoexport --db Tester --collection cuentas --out cuentas.json
+mongoimport --db Tester --collection cuentas --file cuentas.json
