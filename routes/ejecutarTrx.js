@@ -40,14 +40,33 @@ router.post('/', function(req, res, next) {
         var date1 = new Date();
         // conecta al Socket y envia el mensaje, dependiendo si es TCPP o TCP envia el tamaño del buffer al comienzo del mensaje
         client.connect(puerto, ip, function() {
+          var data = [];
           var length = iso.length;
-          client.write(length + iso);
+
+          for (var i = 0; i < iso.length; i++){
+              data.push(iso.charCodeAt(i));
+          }
+
+          var buffer = new ArrayBuffer(2);
+          var view = new DataView(buffer);
+          view.setUint8(0, length); // (max signed 16-bit integer)
+
+          var b0 = view.getUint8(0);
+          var b1 = length >> 8;
+
+          data.unshift(b0);
+          data.unshift(b1);
+
+	  var buf = new Buffer(data);
+
+          client.write(buf);
         });
         // En caso de recibir informacion por el socket
         client.on('data', function(data) {
-
           var respuestaOK = false;
           var datos = data.toString('ascii');
+	        console.log(datos);
+	        if (datos.substr(2,3) == "ISO") {var datos = datos.substr(2);}
           if (datos.substr(0,3) == "ISO") {
 
               var datosParseado = new Parseador(datos);
@@ -70,9 +89,12 @@ router.post('/', function(req, res, next) {
                 if (err) {
                   res.send({resultado: false, error: '<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>Algo Salió Mal: Con la base de datos. Error: ' + err + '</span><i class="material-icons right" onclick="Cerrar()">close</i></div>' })
                 }else{
-
-                  res.send({resultado: respuestaOK, tiempo:dif});
-                  client.destroy();
+                  if (respuestaOK) {
+                    res.send({resultado: respuestaOK, tiempo:dif});
+                  }else{
+                    res.send({resultado: respuestaOK, tiempo:dif, respuestaCore:campo39.Valor});
+                  };
+                  //client.destroy();
                 };
               });
           };

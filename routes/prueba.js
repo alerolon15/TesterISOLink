@@ -46,7 +46,27 @@ router.post('/verInfo', function(req, res, next) {
       res.status(400);
       res.send('Error al buscar informacion');
     }else{
-      res.send(prueba);
+      var isoInput = new Parseador(prueba.isoTest);
+      var isoOutput = new Parseador(prueba.isoUltimaEjecucion);
+
+      
+      var result = {
+        _id: prueba._id,
+        idTest: prueba.idTest,
+        isoTest: prueba.isoTest,
+        activar: prueba.activar,
+        descripcion: prueba.descripcion,
+        ultimaEjecucion: prueba.ultimaEjecucion,
+        isoUltimaEjecucion: prueba.isoUltimaEjecucion,
+        resultadoEsperado: prueba.resultadoEsperado,
+        tipoTrx: prueba.tipoTrx,
+        resultadoRecibido: prueba.resultadoRecibido,
+        isoInput: isoInput,
+        isoOutput: isoOutput
+
+      };
+
+      res.send(result);
     };
   });
 });

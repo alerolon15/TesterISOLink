@@ -48,7 +48,13 @@
 <a class="waves-effect waves-light btn modal-trigger hide buttonModal" href="#modal1">Modal</a>
 
 <div id="modal1" class="modal">
-  <div class="modal-content">
+    <ul id="tabs-swipe-demo" class="tabs">
+      <li class="tab col s3"><a class="active" href="#test-swipe-1">Datos</a></li>
+      <li class="tab col s3"><a href="#test-swipe-2">ISO enviada</a></li>
+      <li class="tab col s3"><a href="#test-swipe-3">ISO recibida</a></li>
+    </ul>
+
+  <div id="test-swipe-1" class="modal-content">
     <h4>Datos de Prueba</h4>
     <hr>
     <table class="table table-striped">
@@ -71,6 +77,38 @@
         	</tbody>
         </table>
   </div>
+  <div id="test-swipe-2" class="col s12">
+    <div class="container">
+      <h4 style="margin-top:20px;">ISO Enviada</h4>
+      <hr>
+      <table class="table table-striped">
+      	<thead>
+      	  <tr style="text-align: left;">
+        		<th>Campo</th>
+        		<th>Valor</th>
+      	  </tr>
+      	</thead>
+      	<tbody class="ISOINPUT">
+      	</tbody>
+        </table>
+    </div>
+  </div>
+  <div id="test-swipe-3" class="col s12">
+    <div class="container">
+      <h4 style="margin-top:20px;">ISO Recibida</h4>
+      <hr>
+      <table class="table table-striped">
+      	<thead>
+      	  <tr style="text-align: left;">
+        		<th>Campo</th>
+        		<th>Valor</th>
+      	  </tr>
+      	</thead>
+      	<tbody class="ISOOUTPUT">
+      	</tbody>
+        </table>
+    </div>
+  </div>
   <div class="modal-footer">
     <a class="modal-close waves-effect waves-green btn-flat">Cerrar</a>
   </div>
@@ -88,6 +126,7 @@ function verInfo(id) {
           if(result.error) {
             document.getElementById('errores').innerHTML = document.getElementById('errores').innerHTML + result.error;
           }else{
+
             $('.buttonModal')[0].click();
             document.getElementsByClassName('idTest')[0].innerHTML = '<td style="text-align:left;"><strong>ID del Test:</strong></td><td> '  + result.idTest + '</td>';
             document.getElementsByClassName('tipoTrx')[0].innerHTML = '<td style="text-align:left;"><strong>Tipo de Trx:</strong></td><td> '  + result.tipoTrx  + '</td>';
@@ -100,6 +139,18 @@ function verInfo(id) {
             document.getElementsByClassName('ultimaEjecucion')[0].innerHTML = '<td style="text-align:left;"><strong>Resultado Ultima Ejecucion:</strong></td><td> '  + ultimaHtml + '</td>';
             document.getElementsByClassName('isoUltimaEjecucion')[0].innerHTML = '<td style="text-align:left;"><strong>ISO respuesta:</strong></td><td><pre>['  + result.isoUltimaEjecucion + ']</pre></td>';
             document.getElementsByClassName('resultadoRecibido')[0].innerHTML = '<td style="text-align:left;"><strong>Resultado Recibido:</strong></td><td> '  + result.resultadoRecibido + '</td>';
+
+            var htmlISOINPUT = "";
+            result.isoInput.Campos.forEach(function(item) {
+              htmlISOINPUT = htmlISOINPUT + '<tr><td>' + item.Campo + '</td><td>' + item.Valor + '</td></tr>'
+            });
+            var htmlISOOUTPUT = "";
+            result.isoOutput.Campos.forEach(function(item) {
+              htmlISOOUTPUT = htmlISOOUTPUT + '<tr><td>' + item.Campo + '</td><td>' + item.Valor + '</td></tr>'
+            });
+
+            document.getElementsByClassName('ISOINPUT')[0].innerHTML = htmlISOINPUT;
+            document.getElementsByClassName('ISOOUTPUT')[0].innerHTML = htmlISOOUTPUT;
           };
         };
       },
