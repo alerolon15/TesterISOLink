@@ -179,7 +179,9 @@ function setearDatosISO(isoParseado, prueba, cuenta, iso ){
   var signoTarjeta = campo35.Valor.indexOf('=');
   if (signoTarjeta > 0) {
     var tarjetaIso = campo35.Valor.substring(0, signoTarjeta);
-    iso = iso.replace(tarjetaIso, cuenta[0].TarjetaAsociada);
+    var campo35Nuevo = campo35.Valor.replace(tarjetaIso, cuenta[0].TarjetaAsociada);
+    var campo35Nuevo = padingR(campo35Nuevo, campo35.Valor.length, ' ');
+    iso = iso.replace(campo35.Valor, campo35Nuevo);
   };
 
   // seteamos todos los campos de fechas con la del dia.
