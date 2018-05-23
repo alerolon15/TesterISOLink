@@ -9,12 +9,23 @@ var net = require('net');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   Cuenta.find({}, function(err, cuenta) {
-    if (cuenta) {
+    if (cuenta[0]) {
       res.render('cuenta/index',{cuenta:cuenta});
     }
     else{
-      res.render('cuenta/index');
-    }
+      var cuentas = new Cuenta({
+        TarjetaAsociada:"XXXXXXXXXXXXXXXXXX",
+        nroBanco:"XXX",
+        CajaAhorroPesos:"Caja Ahorro en pesos",
+        CajaAhorroDolares:"Caja Ahorro en Dolares",
+        CuentaCorrientePesos:"Cuenta Corrientes en pesos",
+        CuentaCorrienteDolares:"Cuenta Corrientes en dolares"
+      });
+      cuentas.save(function(err){
+        if(err){console.log(err)};
+        res.redirect('/cuenta');
+      });
+    };
   });
 });
 router.post('/', function(req, res, next) {
