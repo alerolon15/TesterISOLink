@@ -16,9 +16,9 @@
           <i class="material-icons prefix">local_atm</i>
           <select name="tipoTrx">
             <option value="" disabled selected>Elige una opcion</option>
-            <option value="Consulta de Saldo">Consulta de Saldo</option>
-            <option value="Extraccion">Extraccion</option>
-            <option value="Compra">Compra</option>
+            {{#each tipoTrx}}
+              <option value="{{this.tipoTrx}}">{{this.tipoTrx}}</option>
+            {{/each}}
           </select>
           <label for="tipoTrx">Tipo de Transacción</label>
         </div>
@@ -26,9 +26,9 @@
           <i class="material-icons prefix">bug_report</i>
           <select name="resultadoEsperado">
             <option value="" disabled selected>Elige una opcion</option>
-            <option value="00">Aprobada</option>
-            <option value="51">Saldo insuficiente</option>
-            <option value="88">Sistema no disponible</option>
+            {{#each tipoRespuestaTrx}}
+              <option value="{{this.codigoRespuestaTrx}}">{{this.tipoRespuestaTrx}}</option>
+            {{/each}}
           </select>
           <label for="resultadoEsperado">Respuesta Esperada</label>
         </div>

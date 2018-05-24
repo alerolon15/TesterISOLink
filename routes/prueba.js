@@ -4,6 +4,8 @@ var Parseador = require('../models/iso');
 var Canal = require('../models/canal');
 var Cuenta = require('../models/cuenta');
 var Prueba = require('../models/transacciones');
+var tipoRespuestaTrx = require('../models/tipoRespuestaTransaccion');
+var tipoTrx = require('../models/tipoTransaccion');
 var bodyParser = require('body-parser');
 var net = require('net');
 
@@ -75,7 +77,10 @@ router.post('/verInfo', function(req, res, next) {
 });
 
 router.get('/crearPrueba', function(req, res, next) {
-  res.render('prueba/crearPrueba');
+  var tipoRespuestaTrxJSON = new tipoRespuestaTrx();
+  var tipoTrxJSON = new tipoTrx();
+
+  res.render('prueba/crearPrueba',{tipoRespuestaTrx:tipoRespuestaTrxJSON, tipoTrx:tipoTrxJSON});
 });
 
 router.post('/crearPrueba', function(req, res, next) {
@@ -113,10 +118,12 @@ router.post('/crearPrueba', function(req, res, next) {
 });
 
 router.get('/editar/:id', function(req, res, next) {
+  var tipoRespuestaTrxJSON = new tipoRespuestaTrx();
+  var tipoTrxJSON = new tipoTrx();
   var pruebaEditar = req.params.id;
   Prueba.find({idTest:pruebaEditar}, function(err, prueba) {
     var pruebaID = prueba[0];
-    res.render('prueba/editarPrueba',{ prueba: pruebaID });
+    res.render('prueba/editarPrueba',{ prueba: pruebaID,tipoRespuestaTrx:tipoRespuestaTrxJSON, tipoTrx:tipoTrxJSON });
   });
 });
 
