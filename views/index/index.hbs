@@ -153,6 +153,7 @@ function ejecutarTodo() {
   function ejecutarTrx(id) {
     var d = new Date();
     var f = d.getMilliseconds();
+    document.getElementById('resultado'+id).innerHTML = '<img style="margin: 0; width: 32px;" src="/images/Spinner.gif" />';
     var direccion = "/ejecutarTrx"
     $.ajax(
       {
@@ -164,6 +165,7 @@ function ejecutarTodo() {
             if(result.error) {
               document.getElementById('errores').innerHTML = result.error;
               document.getElementById('respuesta'+id).innerHTML = '<i style="color:red;" class="small material-icons">clear</i>';
+              document.getElementById('resultado'+id).innerHTML = '<i style="color:red;" class="small material-icons">clear</i>';
             }else{
 
               document.getElementById('resultado'+id).innerHTML = '<i style="color:green;" class="small material-icons">check</i>';
@@ -179,6 +181,7 @@ function ejecutarTodo() {
         },
         error: function(excepcion){
             document.getElementById('respuesta'+id).innerHTML = '<i style="color:red;" class="small material-icons">clear</i>';
+            document.getElementById('resultado'+id).innerHTML = '<i style="color:red;" class="small material-icons">clear</i>';
         }
     });
 
