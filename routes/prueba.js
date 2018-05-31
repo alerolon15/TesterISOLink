@@ -106,13 +106,14 @@ router.post('/crearPrueba', function(req, res, next) {
     resultadoRecibido
   };
   var prueba = new Prueba(data);
-
+  var tipoRespuestaTrxJSON = new tipoRespuestaTrx();
+  var tipoTrxJSON = new tipoTrx();
   prueba.save(function(err){
     if(err){
         console.log(err);
-        res.render('prueba/crearPrueba', {error:'<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>No se pudo crear la prueba</span><i class="material-icons right" onclick="Cerrar()">close</i></div>'});
+        res.render('prueba/crearPrueba', {error:'<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>No se pudo crear la prueba</span><i class="material-icons right" onclick="Cerrar()">close</i></div>',tipoRespuestaTrx:tipoRespuestaTrxJSON, tipoTrx:tipoTrxJSON});
     }else{
-      res.render('prueba/crearPrueba', { error:'<div class="card-panel green darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>La prueba se creo correctamente</span><i class="material-icons right" onclick="Cerrar()">close</i></div>' });
+      res.render('prueba/crearPrueba', { error:'<div class="card-panel green darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>La prueba se creo correctamente</span><i class="material-icons right" onclick="Cerrar()">close</i></div>',tipoRespuestaTrx:tipoRespuestaTrxJSON, tipoTrx:tipoTrxJSON });
     }
   });
 });
@@ -136,9 +137,11 @@ router.post('/editar/:id', function(req, res, next) {
     prueba[0].resultadoEsperado  = req.body.resultadoEsperado;
 
     prueba[0].save(function(err) {
+    var tipoRespuestaTrxJSON = new tipoRespuestaTrx();
+    var tipoTrxJSON = new tipoTrx();
       if(err){
           console.log(err);
-          res.render('prueba/editarPrueba', {error:'<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>No se pudo editar la prueba</span><i class="material-icons right" onclick="Cerrar()">close</i></div>',prueba: prueba});
+          res.render('prueba/editarPrueba', {error:'<div class="card-panel red darken-2" style="color: rgba(255, 255, 255, 0.9);"><span>No se pudo editar la prueba</span><i class="material-icons right" onclick="Cerrar()">close</i></div>',prueba: prueba,tipoRespuestaTrx:tipoRespuestaTrxJSON, tipoTrx:tipoTrxJSON});
       }else{
         res.redirect('/prueba');
       }

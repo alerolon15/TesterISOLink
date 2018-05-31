@@ -10,9 +10,9 @@
 <code>npm install</code>
 <hr>
 
-<p>iniciar proyecto en el puerto 3000 del localhost:</p>
+<p>iniciar proyecto en el puerto 3030 del localhost:</p>
 <p>usar el comando:</p>
 <code>npm start</code>
 <hr>
 
-<p>Ir al navegador e ir a la url "http://localhost:3000/"<p>
+<p>Ir al navegador e ir a la url "http://localhost:3030/"<p>
